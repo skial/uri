@@ -4,8 +4,7 @@ import uhx.mo.Token;
 import byte.ByteData;
 import uhx.lexer.Uri;
 import haxe.ds.StringMap;
-import uhx.lexer.Uri as UriLexer;
-import uhx.parser.Uri as UriParser;
+import uhx.lexer.Uri.UriKeywords;
 
 typedef Tokens = Array<Token<UriKeywords>>;
 
@@ -30,20 +29,32 @@ abstract Uri(Tokens) from Tokens to Tokens {
 	public var queries(get, never):StringMap<String>;	// TODO
 	public var fragment(get, set):String;
 	
-	public inline function new(v:Tokens) this = v;
+	public inline function new(v:Tokens) {
+		this = v;
+		trace( v );
+	}
 	
 	@:noCompletion @:from public static inline function fromString(v:String):Uri {
-		return new Uri( new UriParser().toTokens( ByteData.ofString( v ), 'uri-abstract' ) );
+		return new Uri( new uhx.parser.Uri().toTokens( ByteData.ofString( v ), 'uri-abstract' ) );
 	}
 	
 	@:to public function toString():String {
+		var directories = 0;
 		var queries = 0;
 		return [for (token in this) switch(token) {
 			case Keyword(Scheme(v)): '$v:\\';
 			case Keyword(Auth(u, p)): '$u:$p@';
 			case Keyword(Host(v)): v;
 			case Keyword(Port(v)): ':$v';
-			case Keyword(Directory(v)): '/$v';
+			case Keyword(Directory(v)): 
+				(switch (directories) {
+					case 0: 
+						directories++;
+						'';
+					case _: 
+						directories++;
+						'/';
+				}) + v;
 			case Keyword(File(v)): '/v';
 			case Keyword(Extension(v)): '.$v';
 			case Keyword(Query(n, v)):
@@ -56,6 +67,7 @@ abstract Uri(Tokens) from Tokens to Tokens {
 						'&';
 				}) + '$n=$v';
 			case Keyword(Fragment(v)): '#$v';
+			case _: '';
 		}].join('');
 	}
 	
@@ -124,7 +136,7 @@ abstract Uri(Tokens) from Tokens to Tokens {
 				
 		}
 		
-		if (this[i].match( Keyword(Auth(_, _)) )) {
+		if (this[index].match( Keyword(Auth(_, _)) )) {
 			this[index] = Keyword(Auth(v, previous));
 			
 		} else {
@@ -166,7 +178,7 @@ abstract Uri(Tokens) from Tokens to Tokens {
 				
 		}
 		
-		if (this[i].match( Keyword(Auth(_, _)) )) {
+		if (this[index].match( Keyword(Auth(_, _)) )) {
 			this[index] = Keyword(Auth(previous, v));
 			
 		} else {
@@ -206,7 +218,7 @@ abstract Uri(Tokens) from Tokens to Tokens {
 				
 		}
 		
-		if (this[i].match( Keyword(Host(_)) )) {
+		if (this[index].match( Keyword(Host(_)) )) {
 			this[index] = Keyword(Host(v));
 			
 		} else {
@@ -246,7 +258,7 @@ abstract Uri(Tokens) from Tokens to Tokens {
 				
 		}
 		
-		if (this[i].match( Keyword(Port(_)) )) {
+		if (this[index].match( Keyword(Port(_)) )) {
 			this[index] = Keyword(Port('$v'));
 			
 		} else {
@@ -262,13 +274,14 @@ abstract Uri(Tokens) from Tokens to Tokens {
 			case Keyword(Directory(v)): '/$v';
 			case Keyword(File(v)): '/$v';
 			case Keyword(Extension(v)): '.$v';
+			case _: '';
 		}].join('');
 	}
 	
 	private inline function get_directory():String {
 		return [for (token in this) switch (token) {
 			case Keyword(Directory(v)): v;
-			case _:
+			case _: '';
 		}].join('/');
 	}
 	
@@ -288,7 +301,7 @@ abstract Uri(Tokens) from Tokens to Tokens {
 		}
 		
 		if (start > -1) {
-			var directories = [for (part in v.split('/')) Keyword(Directory(parts))];
+			var directories = [for (part in v.split('/')) Keyword(Directory(part))];
 			var head = this.slice(0, start);
 			var tail = end > -1 ? this.slice(end) : [];
 			this = head.concat( directories.concat( tail ) );
@@ -301,7 +314,7 @@ abstract Uri(Tokens) from Tokens to Tokens {
 	private inline function get_directories():Array<String> {
 		return [for (token in this) switch (token) {
 			case Keyword(Directory(v)): v;
-			case _:
+			case _: '';
 		}];
 	}
 	
@@ -426,6 +439,32 @@ abstract Uri(Tokens) from Tokens to Tokens {
 		}
 		
 		return result;
+	}
+	
+	private inline function set_fragment(v:String):String {
+		var index = this.length - 1;
+		
+		while (index > 0) {
+			switch (this[index]) {
+				case Keyword(Fragment(_)):
+					break;
+					
+				case _:
+					
+			}
+			
+			index--;
+		}
+		
+		if (index > -1) {
+			this[index] = Keyword(Fragment(v));
+			
+		} else {
+			this.push( Keyword(Fragment(v)) );
+			
+		}
+		
+		return v;
 	}
 	
 }
