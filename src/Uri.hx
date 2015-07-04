@@ -29,10 +29,7 @@ abstract Uri(Tokens) from Tokens to Tokens {
 	public var queries(get, never):StringMap<String>;	// TODO
 	public var fragment(get, set):String;
 	
-	public inline function new(v:Tokens) {
-		this = v;
-		trace( v );
-	}
+	public inline function new(v:Tokens) this = v;
 	
 	@:noCompletion @:from public static inline function fromString(v:String):Uri {
 		return new Uri( new uhx.parser.Uri().toTokens( ByteData.ofString( v ), 'uri-abstract' ) );
@@ -258,11 +255,17 @@ abstract Uri(Tokens) from Tokens to Tokens {
 				
 		}
 		
-		if (this[index].match( Keyword(Port(_)) )) {
-			this[index] = Keyword(Port('$v'));
+		if (index > -1) {
+			if (this[index].match( Keyword(Port(_)) )) {
+				this[index] = Keyword(Port('$v'));
+				
+			} else {
+				this.insert( index + 1, Keyword(Port('$v')) );
+				
+			}
 			
 		} else {
-			this.insert( index + 1, Keyword(Port('$v')) );
+			this.push( Keyword(Port('$v')) );
 			
 		}
 		
