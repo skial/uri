@@ -28,6 +28,10 @@ class Main {
 }
 ```
 
+## Notes on parsing
+
+- `Uri::path` and `Uri::directory` will never return beginning with a slash `/`.
+
 ## Api
 
 ```Haxe
