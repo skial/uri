@@ -21,7 +21,7 @@ import uhx.types.Uri;
 
 class Main {
 	
-	public static function maain() {
+	public static function main() {
 		var uri:Uri = 'http://haxe.io/roundups/326/';
 	}
 	
