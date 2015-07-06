@@ -6,9 +6,9 @@ A little library which adds the `Uri` abstract type.
 
 You need to install the following libraries from GitHub.
 
-1. hxparser - haxelib git hxparse https://github.com/Simn/hxparse development src
-2. mo - haxelib git mo https://github.com/skial/mo master src
-3. uri - haxelib git uri https://github.com/skial/uri master src
+1. hxparser - `haxelib git hxparse https://github.com/Simn/hxparse development src`
+2. mo - `haxelib git mo https://github.com/skial/mo master src`
+3. uri - `haxelib git uri https://github.com/skial/uri master src`
 	
 Then in your `.hxml` file, add `-lib uri` and you're set.
 
