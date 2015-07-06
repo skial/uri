@@ -1,4 +1,4 @@
-package ;
+package uhx.types;
 
 import uhx.mo.Token;
 import byte.ByteData;
