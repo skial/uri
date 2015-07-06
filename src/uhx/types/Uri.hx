@@ -296,7 +296,7 @@ abstract Uri(Tokens) from Tokens to Tokens {
 			case Keyword(Directory(_)) if(start == -1):
 				start = i;
 				
-			case Keyword(Directory(_)) if(end == -1):
+			case Keyword(Directory(_)):
 				end = i;
 				
 			case _:
@@ -306,7 +306,7 @@ abstract Uri(Tokens) from Tokens to Tokens {
 		if (start > -1) {
 			var directories = [for (part in v.split('/')) Keyword(Directory(part))];
 			var head = this.slice(0, start);
-			var tail = end > -1 ? this.slice(end) : [];
+			var tail = end > -1 ? this.slice(end + 1) : [];
 			this = head.concat( directories.concat( tail ) );
 			
 		}
