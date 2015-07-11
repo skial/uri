@@ -68,6 +68,14 @@ abstract Uri(Tokens) from Tokens to Tokens {
 		}].join('');
 	}
 	
+	public inline function isUrl():Bool {
+		return [for (token in this) if (token.match( Keyword(Host(_)) )) 0].length > 0;
+	}
+	
+	public inline function isAbsolute():Bool {
+		return [for (token in this) if (token.match( Keyword(Scheme(_)) ) || token.match( Keyword(Host(_)) ) ) 0].length > 0;
+	}
+	
 	private inline function get_scheme():String {
 		return this[0].match( Keyword(Scheme(_)) ) ? switch (this[0]) {
 			case Keyword(Scheme(v)): v;
